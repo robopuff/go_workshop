@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mytheresa/go-workshop/internal"
+	"github.com/go-workshop/internal"
 )
 
 func main() {
