@@ -8,7 +8,7 @@ Both of them should expose:
 * _WS_ `/ws` that will handle all WebSockets connections
 
 First service will listen to all incoming messages and publish
-them in a queue (you can use `github.com/wagslane/go-rabbitmq` or any other),
+them in a queue (you can use `github.com/pebbe/zmq4` or any other),
 don't have to publish anything in response.
 
 Second will listen to incoming messages from queue and publish them
@@ -16,3 +16,5 @@ to all connected WS clients.
 
 There is simple HTML client provided in `tools/client/index.html` that by default is
 trying to connect to `ws://localhost:8080/ws` and `ws://localhost:8090/ws`.
+
+Docker image of `golang:1.17-alpine` with ZeroMQ installed is available at `./docker/Dockerfile`
