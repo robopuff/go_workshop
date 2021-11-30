@@ -17,7 +17,7 @@ When defining main struct for JSON unmarshal, mark it as an array of structs (`[
 
 ## Expected outcome
 
-```json
+```
  $ go run main.go -word "hello"
 hello
 -------
