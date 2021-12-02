@@ -2,24 +2,18 @@ package main
 
 import (
 	"os"
-	"time"
 
+	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/robopuff/go-workshop/kata/02_pubsub/internal/config"
 	"github.com/robopuff/go-workshop/kata/02_pubsub/internal/subscriber"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	cfg := config.Config{
-		Amqp: config.AMQP{
-			Address: "localhost:5672",
-		},
-		Http: config.HTTP{
-			Bind:         ":8090",
-			ReadTimeout:  1 * time.Second,
-			WriteTimeout: 1 * time.Second,
-			IdleTimeout:  10 * time.Second,
-		},
+	cfg := config.Config{}
+	if err := cleanenv.ReadEnv(&cfg); err != nil {
+		logrus.WithError(err).Error("cannot read env")
+		os.Exit(-1000)
 	}
 
 	app := subscriber.NewApp(cfg.Amqp, cfg.Http)

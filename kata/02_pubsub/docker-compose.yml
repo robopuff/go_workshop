@@ -3,9 +3,35 @@ services:
   garagemq:
     image: amplitudo/garagemq
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - app
+  publisher:
+      build:
+        context: ./
+        dockerfile: docker/Dockerfile
+      ports:
+        - "8080:8080"
+      environment:
+        AMQP_ADDRESS: "garagemq:5672"
+      command: ["publisher"]
+      networks:
+        - app
+      depends_on:
+        - garagemq
+  subscriber:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8090:8080"
+    environment:
+      AMQP_ADDRESS: "garagemq:5672"
+    command: [ "subscriber" ]
+    networks:
+      - app
+    depends_on:
+      - garagemq
 networks:
   app:
