@@ -3,7 +3,6 @@ package publisher
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/robopuff/go-workshop/kata/02_pubsub/internal"
 	"github.com/robopuff/go-workshop/kata/02_pubsub/internal/config"
@@ -13,6 +12,12 @@ import (
 	"github.com/wagslane/go-rabbitmq"
 )
 
+const (
+	ExitCodeOk = iota
+	ExitCodeHTTPErr = 100
+	ExitCodeAMQPErr = 200
+)
+
 type app struct {
 	amqp     config.AMQP
 	http     config.HTTP
@@ -20,7 +25,7 @@ type app struct {
 }
 
 func NewApp(amqp config.AMQP, http config.HTTP) internal.App {
-	return &app{amqp, http, 0}
+	return &app{amqp, http, ExitCodeOk}
 }
 
 func (a *app) Run() error {
@@ -28,8 +33,8 @@ func (a *app) Run() error {
 
 	client, returns, err := rabbitmq.NewPublisher(fmt.Sprintf("amqp://%s", a.amqp.Address), amqp.Config{})
 	if err != nil {
-		logrus.WithError(err).Error("cannot start AMQP client")
-		os.Exit(-1)
+		a.exitCode = ExitCodeAMQPErr
+		return err
 	}
 
 	logrus.Info("AMQP connected")
@@ -47,8 +52,8 @@ func (a *app) Run() error {
 	srv := server.NewServer(a.http, mux)
 	logrus.WithField("bind", srv.Addr).Info("HTTP server starting")
 	if err := srv.ListenAndServe(); err != nil {
-		logrus.WithError(err).Error("HTTP server critical error")
-		os.Exit(500)
+		a.exitCode = ExitCodeHTTPErr
+		return err
 	}
 	return nil
 }

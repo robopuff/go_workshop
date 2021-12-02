@@ -26,7 +26,7 @@ type app struct {
 }
 
 func NewApp(amqp config.AMQP, http config.HTTP) internal.App {
-	return &app{amqp, http, 0}
+	return &app{amqp, http, ExitCodeOk}
 }
 
 func (a *app) Run() error {
@@ -50,7 +50,7 @@ func (a *app) Run() error {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", server.NewHealthHandler("publisher", "dev").Handle)
+	mux.HandleFunc("/healthz", server.NewHealthHandler("subscriber", "dev").Handle)
 	mux.HandleFunc("/ws", NewWSHandler(p).Handle)
 
 	srv := server.NewServer(a.http, mux)
